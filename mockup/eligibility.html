@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eligibility Rules — Oracle Redwood Mockup</title>
+  <link rel="stylesheet" href="css/redwood.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="header-mark" aria-hidden="true">O</div>
+        <span>Absence Administration</span>
+      </div>
+            <nav class="header-nav" aria-label="Primary">
+        <a href="index.html"><button type="button">Journey Combinations</button></a>
+        <button type="button" class="active">Eligibility Rules</button>
+        <a href="universal-eligibility.html"><button type="button">Universal LOA Family</button></a>
+        <a href="absence-types.html"><button type="button">Absence Types</button></a>
+      </nav>
+      <div class="header-spacer"></div>
+      <div class="header-user">
+        <span class="vb-badge"><i></i> VB / Redwood Mockup</span>
+        <span>Admin User</span>
+        <div class="avatar" aria-hidden="true">AU</div>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb">Absence Setup / <span>Eligibility Rules</span></div>
+          <h1 class="page-title">Eligibility Rules</h1>
+          <p class="page-subtitle">
+            Define leave-type eligibility by state, region, and regulation — including
+            service thresholds, earnings checks, rolling periods, duration, and job protection.
+          </p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" id="btnExport">Export</button>
+          <button type="button" class="btn btn-primary" id="btnCreate">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Create Eligibility Rule
+          </button>
+        </div>
+      </div>
+
+      <section class="collection" aria-label="Eligibility rules collection">
+        <div class="toolbar">
+          <div class="search-field">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <label class="sr-only" for="searchInput">Search eligibility rules</label>
+            <input id="searchInput" type="search" placeholder="Search leave type, regulation, state…" />
+          </div>
+          <div class="filter-group">
+            <label class="sr-only" for="filterState">State</label>
+            <select id="filterState">
+              <option value="">All states</option>
+            </select>
+            <label class="sr-only" for="filterRegion">Region</label>
+            <select id="filterRegion">
+              <option value="">All regions</option>
+            </select>
+            <label class="sr-only" for="filterRegulation">Regulation</label>
+            <select id="filterRegulation">
+              <option value="">All regulations</option>
+            </select>
+            <label class="sr-only" for="filterStatus">Status</label>
+            <select id="filterStatus">
+              <option value="">All statuses</option>
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="toolbar-meta" id="resultCount">0 rules</div>
+        </div>
+
+        <div class="split">
+          <aside class="list-pane" id="listPane" aria-label="Eligibility rule list"></aside>
+
+          <section class="detail-pane" id="detailPane" aria-live="polite">
+            <div class="detail-empty" id="detailEmpty">
+              <div>
+                <p><strong>Select an eligibility rule</strong></p>
+                <p>View regulation thresholds, duration limits, and job protection.</p>
+              </div>
+            </div>
+
+            <div id="detailContent" hidden>
+              <div class="detail-header">
+                <div class="detail-title-block">
+                  <h2 id="detailTitle">—</h2>
+                  <div class="muted" id="detailKey">—</div>
+                </div>
+                <div class="page-actions">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnEdit">Edit</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnDuplicate">Duplicate</button>
+                  <button type="button" class="btn btn-ghost btn-sm" id="btnAddReg">Add regulation</button>
+                </div>
+              </div>
+
+              <div class="detail-fields" id="detailFields"></div>
+
+              <div class="tabs" role="tablist">
+                <button type="button" class="tab active" role="tab" data-tab="table" aria-selected="true">Regulations</button>
+                <button type="button" class="tab" role="tab" data-tab="cards" aria-selected="false">Card view</button>
+                <button type="button" class="tab" role="tab" data-tab="schema" aria-selected="false">Data contract</button>
+              </div>
+
+              <div class="tab-panel active" id="panel-table" role="tabpanel">
+                <div class="section-bar">
+                  <div>
+                    <h3>Regulation eligibility matrix</h3>
+                    <div class="hint">Service, earnings, rolling period, and duration thresholds by regulation</div>
+                  </div>
+                  <div class="hint" id="regCount"></div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table" id="regTable">
+                    <thead>
+                      <tr>
+                        <th>Regulation</th>
+                        <th>Min Service Months</th>
+                        <th>Min Service Hours</th>
+                        <th>Min Weekly Hours</th>
+                        <th>Min Earning Check</th>
+                        <th>Rolling Period Months</th>
+                        <th>Duration Weeks</th>
+                        <th>Duration Hours</th>
+                        <th>Max Combined Weeks</th>
+                        <th>Job Protection</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="regTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="panel-cards" role="tabpanel">
+                <div class="mapping-cards" id="mappingCards"></div>
+              </div>
+
+              <div class="tab-panel" id="panel-schema" role="tabpanel">
+                <div class="mapping-cards">
+                  <div class="mapping-card">
+                    <div class="mapping-card-top"><strong>Flat row contract (spreadsheet / REST)</strong></div>
+                    <pre id="schemaPreview" class="mono" style="margin:0;white-space:pre-wrap;font-size:12px;line-height:1.5;color:var(--rw-text-secondary)"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay" hidden></div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-labelledby="drawerTitle">
+    <div class="drawer-header">
+      <h2 id="drawerTitle">Create Eligibility Rule</h2>
+      <button type="button" class="btn btn-icon" id="btnCloseDrawer" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4 4l8 8M12 4L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <form class="form-grid" id="ruleForm">
+        <div class="form-row two">
+          <div>
+            <label for="fId">Rule ID</label>
+            <input id="fId" name="ruleId" required placeholder="ELIG_OR_FC_02" />
+          </div>
+          <div>
+            <label for="fStatus">Status</label>
+            <select id="fStatus" name="status">
+              <option>Draft</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="fLeaveType">Legacy Leave Type</label>
+          <select id="fLeaveType" name="legacyLeaveType"></select>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fState">State</label>
+            <select id="fState" name="state"></select>
+          </div>
+          <div>
+            <label for="fRegion">Region</label>
+            <select id="fRegion" name="region"></select>
+          </div>
+        </div>
+
+        <p class="form-section-title">Default first regulation</p>
+        <div class="form-row">
+          <label for="fReg">Regulation</label>
+          <select id="fReg" name="regulation"></select>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fMinMonths">Min Service Months</label>
+            <input id="fMinMonths" name="minServiceMonths" type="number" min="0" placeholder="12" />
+          </div>
+          <div>
+            <label for="fMinHours">Min Service Hours</label>
+            <input id="fMinHours" name="minServiceHours" type="number" min="0" placeholder="1250" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fWeekly">Min Weekly Hours</label>
+            <input id="fWeekly" name="minWeeklyHours" placeholder="N/A" />
+          </div>
+          <div>
+            <label for="fEarn">Min Earning Check</label>
+            <input id="fEarn" name="minEarningCheck" type="number" min="0" placeholder="1000" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fRolling">Rolling Period Months</label>
+            <input id="fRolling" name="rollingPeriodMonths" type="number" min="0" placeholder="12" />
+          </div>
+          <div>
+            <label for="fDurWeeks">Duration Weeks</label>
+            <input id="fDurWeeks" name="durationWeeks" type="number" min="0" placeholder="12" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fDurHours">Duration Hours</label>
+            <input id="fDurHours" name="durationHours" type="number" min="0" placeholder="480" />
+          </div>
+          <div>
+            <label for="fMaxComb">Max Combined Weeks</label>
+            <input id="fMaxComb" name="maxCombinedWeeks" type="number" min="0" placeholder="Optional" />
+          </div>
+        </div>
+        <div class="switch-row">
+          <span>Job protection</span>
+          <button type="button" class="switch on" id="swJob" aria-pressed="true" data-field="jobProtection"></button>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-footer">
+      <button type="button" class="btn btn-secondary" id="btnCancelDrawer">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnSaveDrawer">Save</button>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="regDrawer" aria-hidden="true" role="dialog" aria-labelledby="regDrawerTitle">
+    <div class="drawer-header">
+      <h2 id="regDrawerTitle">Edit regulation eligibility</h2>
+      <button type="button" class="btn btn-icon" id="btnCloseRegDrawer" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4 4l8 8M12 4L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <form class="form-grid" id="regForm">
+        <div class="form-row">
+          <label for="rReg">Regulation</label>
+          <select id="rReg" name="regulation"></select>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="rMinMonths">Min Service Months</label>
+            <input id="rMinMonths" name="minServiceMonths" type="number" min="0" />
+          </div>
+          <div>
+            <label for="rMinHours">Min Service Hours</label>
+            <input id="rMinHours" name="minServiceHours" type="number" min="0" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="rWeekly">Min Weekly Hours</label>
+            <input id="rWeekly" name="minWeeklyHours" placeholder="N/A" />
+          </div>
+          <div>
+            <label for="rEarn">Min Earning Check</label>
+            <input id="rEarn" name="minEarningCheck" type="number" min="0" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="rRolling">Rolling Period Months</label>
+            <input id="rRolling" name="rollingPeriodMonths" type="number" min="0" />
+          </div>
+          <div>
+            <label for="rDurWeeks">Duration Weeks</label>
+            <input id="rDurWeeks" name="durationWeeks" type="number" min="0" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="rDurHours">Duration Hours</label>
+            <input id="rDurHours" name="durationHours" type="number" min="0" />
+          </div>
+          <div>
+            <label for="rMaxComb">Max Combined Weeks</label>
+            <input id="rMaxComb" name="maxCombinedWeeks" type="number" min="0" />
+          </div>
+        </div>
+        <div class="switch-row">
+          <span>Job protection</span>
+          <button type="button" class="switch" id="rSwJob" data-field="jobProtection"></button>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-footer">
+      <button type="button" class="btn btn-secondary" id="btnCancelReg">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnSaveReg">Save regulation</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="js/eligibility-data.js"></script>
+  <script src="js/eligibility-app.js"></script>
+</body>
+</html>

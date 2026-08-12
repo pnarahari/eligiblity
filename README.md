@@ -1,1 +1,105 @@
-# eligiblity
+# Eligibility — Journey Combinations UI Mockup
+
+Oracle **Visual Builder / Redwood**-style UI mockup for configuring **Leave of Absence Journey Combinations**, including pay-bucket sequencing and HCM / KPTime mappings.
+
+## Open the mockup
+
+```bash
+# From repo root — any static server works
+python3 -m http.server 8080 --directory mockup
+```
+
+Then open:
+- [http://localhost:8080](http://localhost:8080) — Journey Combinations
+- [http://localhost:8080/eligibility.html](http://localhost:8080/eligibility.html) — Eligibility Rules (Legacy Leave Type)
+- [http://localhost:8080/universal-eligibility.html](http://localhost:8080/universal-eligibility.html) — Universal LOA Family Eligibility
+- [http://localhost:8080/absence-types.html](http://localhost:8080/absence-types.html) — Universal Absence Types
+
+Or open the HTML files under `mockup/` directly in a browser.
+
+## What’s included
+
+### Journey Combinations (`index.html`)
+
+| Area | Behavior |
+|------|----------|
+| Collection list | Search + filters (pattern, reason, status, pay bucket) |
+| Master–detail | Select a journey combination to inspect bucket rows |
+| Bucket mappings table | Spreadsheet-aligned columns (seq, pay bucket, FMLA tracking, HCM types, PTYP, PAY CD, flags, hours mode) |
+| Card view | Same mappings in Redwood-style cards |
+| Data contract tab | Flat row JSON matching the spreadsheet columns |
+| Create / Edit drawer | Journey header + default first bucket |
+| Bucket drawer | Add/edit individual mapping rows |
+| Export | CSV of flattened journey + bucket rows |
+
+### Eligibility Rules (`eligibility.html`)
+
+| Area | Behavior |
+|------|----------|
+| Collection list | Search + filters (state, region, regulation, status) |
+| Master–detail | Leave type + state/region with child regulation rows |
+| Regulations table | Spreadsheet columns (service months/hours, weekly hours, earning check, rolling period, duration, job protection) |
+| Card view | Same regulation thresholds as cards |
+| Create / Edit drawer | Leave type header + default first regulation |
+| Regulation drawer | Add/edit FMLA / PLO / Policy / CBA thresholds |
+| Export | CSV of flattened leave type + regulation rows |
+
+## Spreadsheet / data contract
+
+Each flat row combines journey header fields with one bucket mapping:
+
+- `Journey_Combination_ID`, `Journey_Combination_Key`
+- `Leave_Pattern`, `Leave_Reason`, `Universal_LOA_Family_Code`
+- `Pay_Bucket_Code`, `Bucket_Sequence`, `FMLA_Tracking_Bucket`
+- `User_Selectable`, `Mandatory_Usage`, `Allowed_Selection_Mode`
+- `Wait_Period_Applies`, `Wait_Substitute_Bucket`
+- `Target_HCM_Absence_Type_Name`, `Universal_Absence_Type_ID`, `KPTIME_Absence_Type`
+- `Primary_PTYP_CD_NW`, `Alternate_PTYP_CD_Candidates_NW`, `Derived_PAY_CD`
+- `FMLA_Flag_Authoritative`, `Plan_Selection_Required`, `Hours_Mode`
+
+Sample journey data lives in `mockup/js/data.js`.
+
+## Eligibility Rules data contract
+
+Each flat row combines leave-type / location with one regulation:
+
+- `Legacy_Leave_Type`, `State`, `Region`, `Regulation`
+- `Min_Service_Months`, `Min_Service_Hours`, `Min_Weekly_Hours`, `Min_Earning_Check`
+- `Rolling_Period_Months`, `Duration_Weeks`, `Duration_Hours`, `Max_Combined_Weeks`
+- `Job_Protection`
+
+Sample eligibility data lives in `mockup/js/eligibility-data.js`.
+
+## Universal LOA Family Eligibility
+
+Same Redwood master–detail pattern, keyed by `Universal_LOA_Family_Name` + State + Region, with child regulation rows that include **`Regulation_Type`** (`Federal_FMLA`, `State_Oregon_Paid`, `KP_National_Policy`, `Union_CBA`, `Federal_FMLA_MilCaregiver`).
+
+Flat columns:
+
+- `Universal_LOA_Family_Name`, `State`, `Region`, `Regulation`, `Regulation_Type`
+- `Min_Service_Months`, `Min_Service_Hours`, `Min_Weekly_Hours`, `Min_Earning_Check`
+- `Rolling_Period_Months`, `Duration_Weeks`, `Duration_Hours`, `Max_Combined_Weeks`
+- `Job_Protection`
+
+Sample data: `mockup/js/universal-eligibility-data.js` · UI: `mockup/universal-eligibility.html`
+
+## Universal Absence Types
+
+Flat columns:
+
+- `Universal_Absence_Type_ID`, `Universal_LOA_Family_Code`, `Universal_LOA_Family_Name`
+- `Pay_Bucket_Code`, `FMLA_Tracking_Bucket`, `Derived_Absence_Type_Sequence`
+- `Target_HCM_Absence_Type_Name`, `KPTIME_Absence_Type`
+- `Has_ESL_or_EIB_Plan`, `Active_Flag`
+
+UI: `mockup/absence-types.html` · data: `mockup/js/absence-types-data.js`
+
+## Visual Builder mapping notes
+
+Suggested VB / Redwood components when implementing for real:
+
+- `oj-sp-collection-container` / list view for journey combinations
+- `oj-table` or `oj-dynamic-table` for bucket mappings
+- `oj-drawer-popup` for create/edit forms
+- `oj-select-single`, `oj-input-text`, `oj-switch` for form fields
+- Business object: parent **JourneyCombination** → child **BucketMapping**

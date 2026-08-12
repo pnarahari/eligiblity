@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journey Combinations — Oracle Redwood Mockup</title>
+  <link rel="stylesheet" href="css/redwood.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="header-mark" aria-hidden="true">O</div>
+        <span>Absence Administration</span>
+      </div>
+            <nav class="header-nav" aria-label="Primary">
+        <button type="button" class="active">Journey Combinations</button>
+        <a href="eligibility.html"><button type="button">Eligibility Rules</button></a>
+        <a href="universal-eligibility.html"><button type="button">Universal LOA Family</button></a>
+        <a href="absence-types.html"><button type="button">Absence Types</button></a>
+      </nav>
+      <div class="header-spacer"></div>
+      <div class="header-user">
+        <span class="vb-badge"><i></i> VB / Redwood Mockup</span>
+        <span>Admin User</span>
+        <div class="avatar" aria-hidden="true">AU</div>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb">Absence Setup / <span>Journey Combinations</span></div>
+          <h1 class="page-title">Journey Combinations</h1>
+          <p class="page-subtitle">
+            Configure leave pattern and reason combinations, pay-bucket sequencing,
+            and HCM / KPTime absence type mappings for Leaves of Absence.
+          </p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn btn-secondary" id="btnExport">Export</button>
+          <button type="button" class="btn btn-primary" id="btnCreate">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Create Combination
+          </button>
+        </div>
+      </div>
+
+      <section class="collection" aria-label="Journey combinations collection">
+        <div class="toolbar">
+          <div class="search-field">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <label class="sr-only" for="searchInput">Search journey combinations</label>
+            <input id="searchInput" type="search" placeholder="Search ID, key, reason, absence type…" />
+          </div>
+          <div class="filter-group">
+            <label class="sr-only" for="filterPattern">Leave pattern</label>
+            <select id="filterPattern">
+              <option value="">All patterns</option>
+            </select>
+            <label class="sr-only" for="filterReason">Leave reason</label>
+            <select id="filterReason">
+              <option value="">All reasons</option>
+            </select>
+            <label class="sr-only" for="filterStatus">Status</label>
+            <select id="filterStatus">
+              <option value="">All statuses</option>
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <label class="sr-only" for="filterBucket">Pay bucket</label>
+            <select id="filterBucket">
+              <option value="">All pay buckets</option>
+            </select>
+          </div>
+          <div class="toolbar-meta" id="resultCount">0 combinations</div>
+        </div>
+
+        <div class="split">
+          <aside class="list-pane" id="listPane" aria-label="Combination list"></aside>
+
+          <section class="detail-pane" id="detailPane" aria-live="polite">
+            <div class="detail-empty" id="detailEmpty">
+              <div>
+                <p><strong>Select a journey combination</strong></p>
+                <p>View pay-bucket sequence, FMLA tracking, and HCM mappings.</p>
+              </div>
+            </div>
+
+            <div id="detailContent" hidden>
+              <div class="detail-header">
+                <div class="detail-title-block">
+                  <h2 id="detailTitle">—</h2>
+                  <div class="muted" id="detailKey">—</div>
+                </div>
+                <div class="page-actions">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnEdit">Edit</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnDuplicate">Duplicate</button>
+                  <button type="button" class="btn btn-ghost btn-sm" id="btnAddBucket">Add bucket row</button>
+                </div>
+              </div>
+
+              <div class="detail-fields" id="detailFields"></div>
+
+              <div class="tabs" role="tablist">
+                <button type="button" class="tab active" role="tab" data-tab="table" aria-selected="true">Bucket mappings</button>
+                <button type="button" class="tab" role="tab" data-tab="cards" aria-selected="false">Card view</button>
+                <button type="button" class="tab" role="tab" data-tab="schema" aria-selected="false">Data contract</button>
+              </div>
+
+              <div class="tab-panel active" id="panel-table" role="tabpanel">
+                <div class="section-bar">
+                  <div>
+                    <h3>Pay bucket sequence</h3>
+                    <div class="hint">Ordered usage of SICK → FPD → FLOAT → PTO → UNPAID with FMLA / Non-FMLA tracking</div>
+                  </div>
+                  <div class="hint" id="bucketCount"></div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table" id="bucketTable">
+                    <thead>
+                      <tr>
+                        <th>Seq</th>
+                        <th>Pay Bucket</th>
+                        <th>Tracking</th>
+                        <th>User Sel.</th>
+                        <th>Mandatory</th>
+                        <th>Selection Mode</th>
+                        <th>Wait Period</th>
+                        <th>HCM Absence Type</th>
+                        <th>Universal Absence Type ID</th>
+                        <th>KPTime Type</th>
+                        <th>Primary PTYP</th>
+                        <th>Alt PTYP</th>
+                        <th>PAY CD</th>
+                        <th>FMLA Auth</th>
+                        <th>Plan Sel.</th>
+                        <th>Hours Mode</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="bucketTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="panel-cards" role="tabpanel">
+                <div class="mapping-cards" id="mappingCards"></div>
+              </div>
+
+              <div class="tab-panel" id="panel-schema" role="tabpanel">
+                <div class="mapping-cards">
+                  <div class="mapping-card">
+                    <div class="mapping-card-top"><strong>Flat row contract (spreadsheet / REST)</strong></div>
+                    <pre id="schemaPreview" class="mono" style="margin:0;white-space:pre-wrap;font-size:12px;line-height:1.5;color:var(--rw-text-secondary)"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay" hidden></div>
+
+  <aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-labelledby="drawerTitle">
+    <div class="drawer-header">
+      <h2 id="drawerTitle">Create Journey Combination</h2>
+      <button type="button" class="btn btn-icon" id="btnCloseDrawer" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4 4l8 8M12 4L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <form class="form-grid" id="comboForm">
+        <div class="form-row two">
+          <div>
+            <label for="fId">Journey Combination ID</label>
+            <input id="fId" name="journeyCombinationId" required placeholder="OR_LOA_7" />
+          </div>
+          <div>
+            <label for="fStatus">Status</label>
+            <select id="fStatus" name="status">
+              <option>Draft</option>
+              <option>Active</option>
+              <option>Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="fKey">Journey Combination Key</label>
+          <input id="fKey" name="journeyCombinationKey" required placeholder="Continuous-Care for a Family Member" />
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fPattern">Leave Pattern</label>
+            <select id="fPattern" name="leavePattern"></select>
+          </div>
+          <div>
+            <label for="fReason">Leave Reason</label>
+            <select id="fReason" name="leaveReason"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="fFamily">Universal LOA Family Code</label>
+          <select id="fFamily" name="universalLoaFamilyCode"></select>
+        </div>
+
+        <p class="form-section-title">Default first bucket row</p>
+        <div class="form-row two">
+          <div>
+            <label for="fPayBucket">Pay Bucket Code</label>
+            <select id="fPayBucket" name="payBucketCode"></select>
+          </div>
+          <div>
+            <label for="fSeq">Bucket Sequence</label>
+            <input id="fSeq" name="bucketSequence" type="number" min="10" step="10" value="10" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fTrack">FMLA Tracking Bucket</label>
+            <select id="fTrack" name="fmlaTrackingBucket"></select>
+          </div>
+          <div>
+            <label for="fMode">Allowed Selection Mode</label>
+            <select id="fMode" name="allowedSelectionMode"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="fHcm">Target HCM Absence Type Name</label>
+          <input id="fHcm" name="targetHcmAbsenceTypeName" placeholder="Leave of Absence …" />
+        </div>
+        <div class="form-row">
+          <label for="fUat">Universal Absence Type ID</label>
+          <input id="fUat" name="universalAbsenceTypeId" placeholder="FAMILY_BONDING_SICK_FMLA_01" />
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="fPtyp">Primary PTYP CD</label>
+            <input id="fPtyp" name="primaryPtypcdNw" placeholder="SCK" />
+          </div>
+          <div>
+            <label for="fPayCd">Derived PAY CD</label>
+            <input id="fPayCd" name="derivedPayCd" placeholder="393, 400" />
+          </div>
+        </div>
+
+        <div class="switch-row">
+          <span>User selectable</span>
+          <button type="button" class="switch on" id="swUserSel" aria-pressed="true" data-field="userSelectable"></button>
+        </div>
+        <div class="switch-row">
+          <span>Plan selection required</span>
+          <button type="button" class="switch on" id="swPlan" aria-pressed="true" data-field="planSelectionRequired"></button>
+        </div>
+        <div class="switch-row">
+          <span>FMLA flag authoritative</span>
+          <button type="button" class="switch on" id="swFmla" aria-pressed="true" data-field="fmlaFlagAuthoritative"></button>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-footer">
+      <button type="button" class="btn btn-secondary" id="btnCancelDrawer">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnSaveDrawer">Save</button>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="bucketDrawer" aria-hidden="true" role="dialog" aria-labelledby="bucketDrawerTitle">
+    <div class="drawer-header">
+      <h2 id="bucketDrawerTitle">Edit bucket mapping</h2>
+      <button type="button" class="btn btn-icon" id="btnCloseBucketDrawer" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4 4l8 8M12 4L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <form class="form-grid" id="bucketForm">
+        <div class="form-row two">
+          <div>
+            <label for="bPay">Pay Bucket Code</label>
+            <select id="bPay" name="payBucketCode"></select>
+          </div>
+          <div>
+            <label for="bSeq">Bucket Sequence</label>
+            <input id="bSeq" name="bucketSequence" type="number" min="10" step="10" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="bTrack">FMLA Tracking Bucket</label>
+            <select id="bTrack" name="fmlaTrackingBucket"></select>
+          </div>
+          <div>
+            <label for="bMode">Allowed Selection Mode</label>
+            <select id="bMode" name="allowedSelectionMode"></select>
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="bWait">Wait Period Applies</label>
+            <select id="bWait" name="waitPeriodApplies">
+              <option value="N">N</option>
+              <option value="Y">Y</option>
+            </select>
+          </div>
+          <div>
+            <label for="bWaitSub">Wait Substitute Bucket</label>
+            <input id="bWaitSub" name="waitSubstituteBucket" placeholder="Optional" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="bHcm">Target HCM Absence Type Name</label>
+          <input id="bHcm" name="targetHcmAbsenceTypeName" />
+        </div>
+        <div class="form-row">
+          <label for="bUat">Universal Absence Type ID</label>
+          <input id="bUat" name="universalAbsenceTypeId" />
+        </div>
+        <div class="form-row">
+          <label for="bKp">KPTime Absence Type</label>
+          <input id="bKp" name="kptimeAbsenceType" />
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="bPtyp">Primary PTYP CD NW</label>
+            <input id="bPtyp" name="primaryPtypcdNw" />
+          </div>
+          <div>
+            <label for="bAlt">Alternate PTYP Candidates</label>
+            <input id="bAlt" name="alternatePtypcdCandidatesNw" />
+          </div>
+        </div>
+        <div class="form-row two">
+          <div>
+            <label for="bPayCd">Derived PAY CD</label>
+            <input id="bPayCd" name="derivedPayCd" />
+          </div>
+          <div>
+            <label for="bHours">Hours Mode</label>
+            <select id="bHours" name="hoursMode"></select>
+          </div>
+        </div>
+        <div class="switch-row">
+          <span>User selectable</span>
+          <button type="button" class="switch" id="bSwUser" data-field="userSelectable"></button>
+        </div>
+        <div class="switch-row">
+          <span>Mandatory usage</span>
+          <button type="button" class="switch" id="bSwMand" data-field="mandatoryUsage"></button>
+        </div>
+        <div class="switch-row">
+          <span>Plan selection required</span>
+          <button type="button" class="switch" id="bSwPlan" data-field="planSelectionRequired"></button>
+        </div>
+        <div class="switch-row">
+          <span>FMLA flag authoritative</span>
+          <button type="button" class="switch" id="bSwFmla" data-field="fmlaFlagAuthoritative"></button>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-footer">
+      <button type="button" class="btn btn-secondary" id="btnCancelBucket">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnSaveBucket">Save mapping</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
