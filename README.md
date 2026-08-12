@@ -11,7 +11,8 @@ python3 -m http.server 8080 --directory mockup
 
 Then open:
 - [http://localhost:8080](http://localhost:8080) — Journey Combinations
-- [http://localhost:8080/eligibility.html](http://localhost:8080/eligibility.html) — Eligibility Rules
+- [http://localhost:8080/eligibility.html](http://localhost:8080/eligibility.html) — Eligibility Rules (Legacy Leave Type)
+- [http://localhost:8080/universal-eligibility.html](http://localhost:8080/universal-eligibility.html) — Universal LOA Family Eligibility
 
 Or open the HTML files under `mockup/` directly in a browser.
 
@@ -55,7 +56,18 @@ Each flat row combines journey header fields with one bucket mapping:
 - `Primary_PTYP_CD_NW`, `Alternate_PTYP_CD_Candidates_NW`, `Derived_PAY_CD`
 - `FMLA_Flag_Authoritative`, `Plan_Selection_Required`, `Hours_Mode`
 
-Sample data lives in `mockup/js/data.js`.
+Sample journey data lives in `mockup/js/data.js`.
+
+## Eligibility Rules data contract
+
+Each flat row combines leave-type / location with one regulation:
+
+- `Legacy_Leave_Type`, `State`, `Region`, `Regulation`
+- `Min_Service_Months`, `Min_Service_Hours`, `Min_Weekly_Hours`, `Min_Earning_Check`
+- `Rolling_Period_Months`, `Duration_Weeks`, `Duration_Hours`, `Max_Combined_Weeks`
+- `Job_Protection`
+
+Sample eligibility data lives in `mockup/js/eligibility-data.js`.
 
 ## Visual Builder mapping notes
 
