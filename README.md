@@ -13,6 +13,7 @@ Then open:
 - [http://localhost:8080](http://localhost:8080) — Journey Combinations
 - [http://localhost:8080/eligibility.html](http://localhost:8080/eligibility.html) — Eligibility Rules (Legacy Leave Type)
 - [http://localhost:8080/universal-eligibility.html](http://localhost:8080/universal-eligibility.html) — Universal LOA Family Eligibility
+- [http://localhost:8080/absence-types.html](http://localhost:8080/absence-types.html) — Universal Absence Types
 
 Or open the HTML files under `mockup/` directly in a browser.
 
@@ -68,6 +69,30 @@ Each flat row combines leave-type / location with one regulation:
 - `Job_Protection`
 
 Sample eligibility data lives in `mockup/js/eligibility-data.js`.
+
+## Universal LOA Family Eligibility
+
+Same Redwood master–detail pattern, keyed by `Universal_LOA_Family_Name` + State + Region, with child regulation rows that include **`Regulation_Type`** (`Federal_FMLA`, `State_Oregon_Paid`, `KP_National_Policy`, `Union_CBA`, `Federal_FMLA_MilCaregiver`).
+
+Flat columns:
+
+- `Universal_LOA_Family_Name`, `State`, `Region`, `Regulation`, `Regulation_Type`
+- `Min_Service_Months`, `Min_Service_Hours`, `Min_Weekly_Hours`, `Min_Earning_Check`
+- `Rolling_Period_Months`, `Duration_Weeks`, `Duration_Hours`, `Max_Combined_Weeks`
+- `Job_Protection`
+
+Sample data: `mockup/js/universal-eligibility-data.js` · UI: `mockup/universal-eligibility.html`
+
+## Universal Absence Types
+
+Flat columns:
+
+- `Universal_Absence_Type_ID`, `Universal_LOA_Family_Code`, `Universal_LOA_Family_Name`
+- `Pay_Bucket_Code`, `FMLA_Tracking_Bucket`, `Derived_Absence_Type_Sequence`
+- `Target_HCM_Absence_Type_Name`, `KPTIME_Absence_Type`
+- `Has_ESL_or_EIB_Plan`, `Active_Flag`
+
+UI: `mockup/absence-types.html` · data: `mockup/js/absence-types-data.js`
 
 ## Visual Builder mapping notes
 
