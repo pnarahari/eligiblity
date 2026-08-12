@@ -9,11 +9,15 @@ Oracle **Visual Builder / Redwood**-style UI mockup for configuring **Leave of A
 python3 -m http.server 8080 --directory mockup
 ```
 
-Then open [http://localhost:8080](http://localhost:8080).
+Then open:
+- [http://localhost:8080](http://localhost:8080) — Journey Combinations
+- [http://localhost:8080/eligibility.html](http://localhost:8080/eligibility.html) — Eligibility Rules
 
-Or open `mockup/index.html` directly in a browser.
+Or open the HTML files under `mockup/` directly in a browser.
 
 ## What’s included
+
+### Journey Combinations (`index.html`)
 
 | Area | Behavior |
 |------|----------|
@@ -25,6 +29,18 @@ Or open `mockup/index.html` directly in a browser.
 | Create / Edit drawer | Journey header + default first bucket |
 | Bucket drawer | Add/edit individual mapping rows |
 | Export | CSV of flattened journey + bucket rows |
+
+### Eligibility Rules (`eligibility.html`)
+
+| Area | Behavior |
+|------|----------|
+| Collection list | Search + filters (state, region, regulation, status) |
+| Master–detail | Leave type + state/region with child regulation rows |
+| Regulations table | Spreadsheet columns (service months/hours, weekly hours, earning check, rolling period, duration, job protection) |
+| Card view | Same regulation thresholds as cards |
+| Create / Edit drawer | Leave type header + default first regulation |
+| Regulation drawer | Add/edit FMLA / PLO / Policy / CBA thresholds |
+| Export | CSV of flattened leave type + regulation rows |
 
 ## Spreadsheet / data contract
 

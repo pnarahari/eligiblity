@@ -463,6 +463,30 @@ a:hover {
   color: #5f5a55;
 }
 
+.chip-plo {
+  background: #e8f1fb;
+  color: #0b5cab;
+}
+
+.chip-cba {
+  background: #f3ebe3;
+  color: #7a4e12;
+}
+
+.header-nav a {
+  text-decoration: none;
+}
+
+.header-nav a button {
+  pointer-events: none;
+}
+
+.header-nav a:hover button,
+.header-nav a:focus-visible button {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .empty-list {
   padding: 40px 20px;
   text-align: center;
